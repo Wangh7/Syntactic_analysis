@@ -19,6 +19,7 @@ int ncount=3;
 const int gcount=5;
 char *tab[MAX][MAX];
 char *first[MAX];
+char tempfirst[MAX][MAX]={'\0'};
 char *follow[MAX];
 char *gram[MAX][MAX];
 char *regram[15];
@@ -253,20 +254,19 @@ char* getFirst(int i){
 
 void writeFirst(){
     int i=0;
-    char *t,c,temp[MAX][MAX]={'\0'};
+    char *t,c;
     while(nkey[i]!='\0'){
         t = new char;
         t=getFirst(i);
         int j=0;
         while(*t!='\0'){
-            temp[i][j]=*t;
+            tempfirst[i][j]=*t;
             t++;
             j++;
         }
-        first[i]=temp[i];
+        first[i]=tempfirst[i];
         i++;
     }
-    printfirst();
 }
 
 int IsTkey(char Word){      //判断关键字
@@ -503,15 +503,13 @@ int main() {
     initjihe();
 
     writeFirst();
-    printfirst();
     //inittab();
     char a[20]="(i+i)*i#";
     while(a[i]!='\0'){
         q.push(a[i]);
         i++;
     }
-    cout<<first[0][2]<<endl;
-    cout<<first[1][2]<<endl;
+
     printfirst();
     printfollow();
     //printtab();
