@@ -16,11 +16,13 @@ queue<char>followtemp;
 #define FLASE 0;
 int tcount=6;
 int ncount=3;
+int firstNum=0;
 const int gcount=5;
 char *tab[MAX][MAX];
 char *first[MAX];
 char tempfirst[MAX][MAX]={'\0'};
 char *follow[MAX];
+char tempfollow[MAX][MAX]={'\0'};
 char *gram[MAX][MAX];
 char *regram[15];
 char tkey[MAX];
@@ -114,12 +116,13 @@ void initjihe(){
     first[2]="(i";
     first[3]="*$";
     first[4]="(i";
-     */
+
     follow[0]="#)";
     follow[1]="#)";
     follow[2]="#)+";
     follow[3]="#)+";
     follow[4]="#)+*";
+      */
     /*
     first[0]="a^(";
     first[1]="a^(";
@@ -229,7 +232,7 @@ void getTkey(){
         }
     }
 }
-int firstNum=0;
+
 char* getFirst(int i){
     char first_t[MAX]={'\0'},t;
     firstNum=0;
@@ -265,6 +268,127 @@ void writeFirst(){
             j++;
         }
         first[i]=tempfirst[i];
+        i++;
+    }
+}
+
+char* getFollow(int a){
+    char c,follow_t[MAX]={'\0'};
+    char *temp;
+    int exist;
+    int f=0;
+    c = nkey[a];
+    if(a==0){
+        follow_t[f]='#';
+        f++;
+    }
+    for(int i=0;i<MAX;i++){
+        if(strcmp(gram[i][0],"err")==0)
+            break;
+        for(int j=0;j<MAX;j++){
+            if(strcmp(gram[i][j],"err")==0)
+                break;
+            if(strcmp(gram[i][j],"$")==0)   //ybxl跳过
+                break;
+            for(int k=1;k<MAX-1;k++){   //第一个和最后一个不判断 因为A->aB A->aBb
+                if(gram[i][j][k]=='\0')
+                    break;
+                if(gram[i][j][k]==c){
+                    exist=FLASE;
+                    if(gram[i][j][k+1]=='\0'){  //最后一个是非终结符 A->aB
+                        if(nkey[i]!=c){
+                            temp=follow[i];
+                            while(*temp!='\0'){
+                                for(int b=0;b<f;b++){  //终结符是否已经存在follow集中
+                                    if(follow_t[b]==*temp){
+                                        exist=TRUE;
+                                        break;
+                                    }
+                                }
+                                if(!exist){
+                                    follow_t[f]=*temp;
+                                    f++;
+                                }
+                                temp++;
+                                exist=FLASE;
+                            }
+                        }
+                    }
+                    else if(gram[i][j][k+1]>='A'&&gram[i][j][k+1]<='Z'){ //非终结符
+                        temp=first[getNnum(gram[i][j][k+1])];
+                        while(*temp!='\0'){
+                            if(*temp=='$'){
+                                temp++;
+                                continue;
+                            }
+                            for(int b=0;b<f;b++){  //终结符是否已经存在follow集中
+                                if(follow_t[b]==*temp){
+                                    exist=TRUE;
+                                    break;
+                                }
+                            }
+                            if(!exist){
+                                follow_t[f]=*temp;
+                                f++;
+                            }
+                            temp++;
+                            exist=FLASE;
+                        }
+                        int d=0;
+                        while(strcmp(gram[getNnum(gram[i][j][k+1])][d],"err")!=0) {   //跟在后面的非终结符能否推出ybxl
+                            if(Isybxl(gram[getNnum(gram[i][j][k+1])][d])){
+                                temp=follow[i];
+                                while(*temp!='\0'){
+                                    for(int b=0;b<f;b++){  //终结符是否已经存在follow集中
+                                        if(follow_t[b]==*temp){
+                                            exist=TRUE;
+                                            break;
+                                        }
+                                    }
+                                    if(!exist){
+                                        follow_t[f]=*temp;
+                                        f++;
+                                    }
+                                    temp++;
+                                    exist=FLASE;
+                                }
+                            }
+                            d++;
+                        }
+                    }
+                    else{   //终结符
+                        for(int b=0;b<f;b++){  //终结符是否已经存在follow集中
+                            if(follow_t[b]==gram[i][j][k+1]){
+                                exist=TRUE;
+                                break;
+                            }
+                        }
+                        if(!exist){
+                            follow_t[f]=gram[i][j][k+1];
+                            f++;
+                        }
+                        exist=FLASE;
+                    }
+                }
+            }
+        }
+    }
+    return follow_t;
+}
+
+void writeFollow(){
+    int i=0;
+    char *t,c;
+    while(nkey[i]!='\0'){
+        t = new char;
+        t=getFollow(i);
+        int j=0;
+        while(*t!='\0'){
+            tempfollow[i][j]=*t;
+            t++;
+            j++;
+        }
+        follow[i]=tempfollow[i];
         i++;
     }
 }
@@ -500,9 +624,10 @@ int main() {
     getNkey();
     getTkey();
     //cout<<tkey[0]<<tkey[1]<<tkey[2]<<tkey[3]<<tkey[4]<<tkey[5]<<tkey[6]<<tkey[7];
-    initjihe();
+    //initjihe();
 
     writeFirst();
+    writeFollow();
     //inittab();
     char a[20]="(i+i)*i#";
     while(a[i]!='\0'){
@@ -512,8 +637,8 @@ int main() {
 
     printfirst();
     printfollow();
-    //printtab();
-    //exe();
+    printtab();
+    exe();
 
 
     return 0;
