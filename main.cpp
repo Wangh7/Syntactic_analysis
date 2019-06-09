@@ -628,7 +628,7 @@ int main() {
 
     writeFirst();
     writeFollow();
-    //inittab();
+    inittab();
     char a[20]="(i+i)*i#";
     while(a[i]!='\0'){
         q.push(a[i]);
