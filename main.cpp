@@ -14,8 +14,6 @@ queue<char>followtemp;
 #define MAX 10
 #define TRUE 1;
 #define FLASE 0;
-int tcount=6;
-int ncount=3;
 int firstNum=0;
 const int gcount=5;
 char *tab[MAX][MAX];
@@ -26,11 +24,7 @@ char tempfollow[MAX][MAX]={'\0'};
 char *gram[MAX][MAX];
 char *regram[15];
 char tkey[MAX];
-//char tkey[6]={'i','+','*','(',')','#'};
-//char tkey[6]={'a','^','(',')',',','#'};
 char nkey[MAX];
-//char nkey[5]={'E','R','T','Y','F'};
-//char nkey[gcount]={'S','T','Y'};
 int line=1;
 int getTnum(char Word);
 void printgram();
@@ -140,21 +134,6 @@ void inittab(){
             tab[i][j]="err";
         }
     }
-    /*
-    tab[0][0]="TR";
-    tab[0][3]="TR";
-    tab[1][1]="+TR";
-    tab[1][4]="ε";
-    tab[1][5]="ε";
-    tab[2][0]="FY";
-    tab[2][3]="FY";
-    tab[3][1]="ε";
-    tab[3][2]="*FY";
-    tab[3][4]="ε";
-    tab[3][5]="ε";
-    tab[4][0]="i";
-    tab[4][3]="(E)";
-    */
     for(int i=0;i<gcount;i++){
         int j=0;
         int ybxl=FLASE;
@@ -257,7 +236,7 @@ char* getFirst(int i){
 
 void writeFirst(){
     int i=0;
-    char *t,c;
+    char *t;
     while(nkey[i]!='\0'){
         t = new char;
         t=getFirst(i);
@@ -427,6 +406,7 @@ int IsTKey(char Word){      //判断关键字
     }
     return TRUE;
 }
+
 int IsEKey(char *Word){      //判断关键字
     int  m;
     char *e ="err";
@@ -586,46 +566,14 @@ void scangram(){
         i++;
     }
 }
+
 int main() {
     int i=0;
-    /*
-    inittab();
-    char a[20]="(i+i)*i#";
-    while(a[i]!='\0'){
-        q.push(a[i]);
-        i++;
-    }
-    exe();
-
-
-    initgram();
-    initjihe();
-    inittab();
-    char a[20]="(i+i)*i#";
-    while(a[i]!='\0'){
-        q.push(a[i]);
-        i++;
-    }
-    printfirst();
-    printfollow();
-    printtab();
-    exe();
-
-    cout<<first[0][0]<<endl;
-    cout<<first[0][1]<<endl;
-    cout<<first[0][2]<<endl;
-    cout<<first[1][0]<<endl;
-    cout<<first[1][1]<<endl;
-    cout<<first[1][2]<<endl;
-     */
     initregram();
     initgram();
     printgram();
     getNkey();
     getTkey();
-    //cout<<tkey[0]<<tkey[1]<<tkey[2]<<tkey[3]<<tkey[4]<<tkey[5]<<tkey[6]<<tkey[7];
-    //initjihe();
-
     writeFirst();
     writeFollow();
     inittab();
@@ -634,12 +582,9 @@ int main() {
         q.push(a[i]);
         i++;
     }
-
     printfirst();
     printfollow();
     printtab();
     exe();
-
-
     return 0;
 }
