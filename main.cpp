@@ -22,7 +22,7 @@ char tempfirst[MAX][MAX]={'\0'};
 char *follow[MAX];
 char tempfollow[MAX][MAX]={'\0'};
 char *gram[MAX][MAX];
-char *regram[15];
+char *regram[MAX];
 char tkey[MAX];
 char nkey[MAX];
 int line=1;
@@ -34,11 +34,17 @@ int Isybxl(char *Word);
 int getNnum(char Word);
 void printfirst();
 void initregram(){
-    regram[0]="E->TR";
-    regram[1]="R->+TR|ε";
-    regram[2]="T->FY";
-    regram[3]="Y->*FY|ε";
-    regram[4]="F->(E)|i";
+    char *temp;
+    cout<<"请输入文法(end结束):"<<endl;
+    for(int i=0;i<MAX;i++){
+        temp = new char;
+        cout<<"第"<<i+1<<"条文法:";
+        cin>>temp;
+        if(strcmp(temp,"end")==0){
+            break;
+        }
+        regram[i]=temp;
+    }
 }
 
 void initgram(){
@@ -61,8 +67,6 @@ void initgram(){
         while(regram[i][j]!='\u0000'){
             if(regram[i][j]=='|'){
                 gram[i][a]=temp;
-                //cout<<i <<a <<gram[i][a]<<endl;
-                //printgram();
                 temp = new char;
                 for(int c=0;c<10;c++){
                     temp[c]='\0';
@@ -72,60 +76,12 @@ void initgram(){
                 j++;
                 continue;
             }
-            //cout<<regram[i][j]<<endl;
             temp[b]=regram[i][j];
             b++;
             j++;
-            //cout<<temp<<endl;
         }
         gram[i][a]=temp;
-        //cout<<i <<a <<gram[i][a]<<endl;
-        //printgram();
     }
-    //printgram();
-    /*
-    gram[0][0]="TR";
-    gram[1][0]="+TR";
-    gram[1][1]="ε";
-    gram[2][0]="FY";
-    gram[3][0]="*FY";
-    gram[3][1]="ε";
-    gram[4][0]="(E)";
-    gram[4][1]="i";
-     */
-    /*
-    gram[0][0]="a";
-    gram[0][1]="^";
-    gram[0][2]="(T)";
-    gram[1][0]="SY";
-    gram[2][0]=",SY";
-    gram[2][1]="ε";
-     */
-}
-
-void initjihe(){
-    /*
-    first[0]="(i";
-    first[1]="+$";
-    first[2]="(i";
-    first[3]="*$";
-    first[4]="(i";
-
-    follow[0]="#)";
-    follow[1]="#)";
-    follow[2]="#)+";
-    follow[3]="#)+";
-    follow[4]="#)+*";
-      */
-    /*
-    first[0]="a^(";
-    first[1]="a^(";
-    first[2]=",$";
-
-    follow[0]="#),";
-    follow[1]=")";
-    follow[2]=")";
-     */
 }
 
 void inittab(){
@@ -357,7 +313,7 @@ char* getFollow(int a){
 
 void writeFollow(){
     int i=0;
-    char *t,c;
+    char *t;
     while(nkey[i]!='\0'){
         t = new char;
         t=getFollow(i);
@@ -398,7 +354,7 @@ int getNnum(char Word){
 }
 
 int IsTKey(char Word){      //判断关键字
-    int  m,i;
+    int i;
     for(i=0;i<MAX;i++){
         if(tkey[i]==Word){ //比较字符串
             return FLASE;
@@ -408,9 +364,8 @@ int IsTKey(char Word){      //判断关键字
 }
 
 int IsEKey(char *Word){      //判断关键字
-    int  m;
     char *e ="err";
-    if((m=strcmp(Word,e))==0){ //比较字符串
+    if(strcmp(Word,e)==0){ //比较字符串
         return FLASE;
     }
     return TRUE;
@@ -425,6 +380,7 @@ int Isybxl(char *Word){
 }
 
 void printfirst(){
+    cout<<"FIRST集如下:"<<endl;
     for(int i=0;i<gcount;i++){
         int j=0;
         cout<<"FIRST("<<nkey[i]<<"):{";
@@ -439,6 +395,7 @@ void printfirst(){
 }
 
 void printfollow(){
+    cout<<"FOLLOW集如下:"<<endl;
     for(int i=0;i<gcount;i++){
         int j=0;
         cout<<"FOLLOW("<<nkey[i]<<"):{";
@@ -453,6 +410,7 @@ void printfollow(){
 }
 
 void printtab(){
+    cout<<"分析表如下:"<<endl;
     cout<<"\t\t\t";
     for(int i=0;i<6;i++){
         cout<<tkey[i]<<"\t\t\t";
@@ -462,7 +420,6 @@ void printtab(){
         cout<<nkey[i]<<"\t\t\t";
         cout<<tab[i][0]<<"\t\t\t"<<tab[i][1]<<"\t\t\t"<<tab[i][2]<<"\t\t\t"<<tab[i][3]<<"\t\t\t"<<tab[i][4]<<"\t\t\t"<<tab[i][5]<<endl;
     }
-    cout<<endl;
 }
 
 void printstack(){
@@ -488,6 +445,7 @@ void printqueue(){
 }
 
 void printgram(){
+    cout<<"转换后的文法如下:"<<endl;
     for(int i=0;i<MAX;i++){
         for(int j=0;j<MAX;j++){
             if(strcmp(gram[i][j],"err")==0)
@@ -503,6 +461,7 @@ void exe(){
     int flag = TRUE;
     int tnum,nnum;
     char stack;
+    cout<<"分析过程如下:"<<endl;
     s.push('#');
     s.push('E');
     stemp=s;
@@ -554,22 +513,28 @@ void exe(){
     }
 }
 
-void scangram(){
-    char *temp;
+void initchar(){
+    char a[MAX];
     int i=0;
-    while(1){
-        cin>>temp;
-        if(strcmp(temp,"end")==0){
-            break;
-        }
-        regram[i]=temp;
+    cout<<"请输入要分析的句子:";
+    cin>>a;
+    while(a[i]!='\0'){
+        q.push(a[i]);
         i++;
     }
 }
 
 int main() {
-    int i=0;
+    /*
+     * E->TR
+     * R->+TR|ε
+     * T->FY
+     * Y->*FY|ε
+     * F->(E)|i
+     * (i+i)*i#
+     */
     initregram();
+    initchar();
     initgram();
     printgram();
     getNkey();
@@ -577,11 +542,6 @@ int main() {
     writeFirst();
     writeFollow();
     inittab();
-    char a[20]="(i+i)*i#";
-    while(a[i]!='\0'){
-        q.push(a[i]);
-        i++;
-    }
     printfirst();
     printfollow();
     printtab();
