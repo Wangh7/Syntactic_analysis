@@ -3,36 +3,53 @@
 #include <queue>
 #include <string.h>
 using namespace std;
-stack<char>s;
-stack<char>stemp;
-stack<char>stempd;
-stack<char>temp;
-queue<char>q;
-queue<char>qtemp;
-queue<char>firsttemp;
-queue<char>followtemp;
-#define MAX 10
-#define TRUE 1;
-#define FLASE 0;
-int firstNum=0;
-const int gcount=5;
-char *tab[MAX][MAX];
-char *first[MAX];
-char tempfirst[MAX][MAX]={'\0'};
-char *follow[MAX];
-char tempfollow[MAX][MAX]={'\0'};
-char *gram[MAX][MAX];
-char *regram[MAX];
-char tkey[MAX];
-char nkey[MAX];
-int line=1;
-int getTnum(char Word);
-void printgram();
-int IsEKey(char *Word);
-int IsTKey(char Word);
-int Isybxl(char *Word);
-int getNnum(char Word);
-void printfirst();
+stack<char>s;   //文法栈
+stack<char>stemp;   //临时文法栈
+stack<char>stempd;  //反向临时文法栈
+stack<char>temp;    //临时栈
+queue<char>q;   //句子队列
+queue<char>qtemp;   //临时句子队列
+queue<char>firsttemp;   //first集临时队列
+queue<char>followtemp;  //follow集临时队列
+#define MAX 10  //程序最大执行参数
+#define TRUE 1; //真
+#define FLASE 0;    //假
+int firstNum=0; //求当前first集的个数
+int gcount; //文法总个数
+char *tab[MAX][MAX];    //分析表
+char *first[MAX];   //first集数组
+char tempfirst[MAX][MAX]={'\0'};    //临时first集 保存当前所求的first集
+char *follow[MAX];  //follow集数组
+char tempfollow[MAX][MAX]={'\0'};   //临时follow集 保存当前所求的follow集
+char *gram[MAX][MAX];   //处理后文法集合
+char *regram[MAX];  //处理前的文法集合 保存用户输入的文法
+char tkey[MAX]; //终结符集合
+char nkey[MAX]; //非终结符集合
+int line=1; //分析表当前行数
+void initregram();  //输入文法
+void initgram();    //将输入的文法转换成格式
+void inittab();     //生成分析表
+void getNkey();     //从文法中获得非终结符
+void getTkey();     //从文法中获得终结符
+char* getFirst(int i);  //求第i个非终结符的first集
+void writeFirst();  //将所求的first集写入总first集合中
+char* getFollow(int a); //求第i个非终结符的follow集
+void writeFollow(); //将所求的follow集写入总follow集合中
+int IsTkey(char Word);  //判断是否为终结符
+int getTnum(char Word); //获取当前终结符的序号
+int getNnum(char Word); //获取当前非终结符的序号
+int IsTKey(char Word);  //判断是否为非终结符
+int IsEKey(char *Word); //判断是否为错误符号
+int Isybxl(char *Word); //判断是否为ε
+void printfirst();      //打印first集
+void printfollow();     //打印follow集
+void printtab();        //打印分析表
+void printstack();      //打印栈
+void printqueue();      //打印队列
+void printgram();       //打印文法表
+void exe();             //语法分析
+void initchar();        //输入句子
+//*******************************************************//
 void initregram(){
     char *temp;
     cout<<"请输入文法(end结束):"<<endl;
@@ -44,9 +61,9 @@ void initregram(){
             break;
         }
         regram[i]=temp;
+        gcount=i+1;
     }
 }
-
 void initgram(){
     for(int i=0;i<MAX;i++){
         for(int j=0;j<MAX;j++){
@@ -83,7 +100,6 @@ void initgram(){
         gram[i][a]=temp;
     }
 }
-
 void inittab(){
     for(int i=0;i<10;i++){
         for(int j=0;j<10;j++){
@@ -127,7 +143,6 @@ void inittab(){
         }
     }
 }
-
 void getNkey(){
     for(int i=0;i<MAX;i++){
         nkey[i]='\0';
@@ -136,7 +151,6 @@ void getNkey(){
         nkey[i]=regram[i][0];
     }
 }
-
 void getTkey(){
     for(int i=0;i<MAX;i++){
         tkey[i]='\0';
@@ -167,7 +181,6 @@ void getTkey(){
         }
     }
 }
-
 char* getFirst(int i){
     char first_t[MAX]={'\0'},t;
     firstNum=0;
@@ -189,7 +202,6 @@ char* getFirst(int i){
     }
     return first_t;
 }
-
 void writeFirst(){
     int i=0;
     char *t;
@@ -206,7 +218,6 @@ void writeFirst(){
         i++;
     }
 }
-
 char* getFollow(int a){
     char c,follow_t[MAX]={'\0'};
     char *temp;
@@ -310,7 +321,6 @@ char* getFollow(int a){
     }
     return follow_t;
 }
-
 void writeFollow(){
     int i=0;
     char *t;
@@ -327,7 +337,6 @@ void writeFollow(){
         i++;
     }
 }
-
 int IsTkey(char Word){      //判断关键字
     for(int i=0;i<6;i++){
         if(Word==tkey[i]){ //比较字符串
@@ -336,7 +345,6 @@ int IsTkey(char Word){      //判断关键字
     }
     return FLASE;
 }
-
 int getTnum(char Word){
     for(int i=0;i<6;i++){
         if(Word==tkey[i]){ //比较字符串
@@ -344,7 +352,6 @@ int getTnum(char Word){
         }
     }
 }
-
 int getNnum(char Word){
     for(int i=0;i<gcount;i++){
         if(Word==nkey[i]){ //比较字符串
@@ -352,7 +359,6 @@ int getNnum(char Word){
         }
     }
 }
-
 int IsTKey(char Word){      //判断关键字
     int i;
     for(i=0;i<MAX;i++){
@@ -362,7 +368,6 @@ int IsTKey(char Word){      //判断关键字
     }
     return TRUE;
 }
-
 int IsEKey(char *Word){      //判断关键字
     char *e ="err";
     if(strcmp(Word,e)==0){ //比较字符串
@@ -370,7 +375,6 @@ int IsEKey(char *Word){      //判断关键字
     }
     return TRUE;
 }
-
 int Isybxl(char *Word){
     char *e = "ε";
     if(strcmp(Word,e)==0){
@@ -378,7 +382,6 @@ int Isybxl(char *Word){
     }
     return FLASE;
 }
-
 void printfirst(){
     cout<<"FIRST集如下:"<<endl;
     for(int i=0;i<gcount;i++){
@@ -393,7 +396,6 @@ void printfirst(){
         cout<<'}'<<endl;
     }
 }
-
 void printfollow(){
     cout<<"FOLLOW集如下:"<<endl;
     for(int i=0;i<gcount;i++){
@@ -408,7 +410,6 @@ void printfollow(){
         cout<<'}'<<endl;
     }
 }
-
 void printtab(){
     cout<<"分析表如下:"<<endl;
     cout<<"\t\t\t";
@@ -421,7 +422,6 @@ void printtab(){
         cout<<tab[i][0]<<"\t\t\t"<<tab[i][1]<<"\t\t\t"<<tab[i][2]<<"\t\t\t"<<tab[i][3]<<"\t\t\t"<<tab[i][4]<<"\t\t\t"<<tab[i][5]<<endl;
     }
 }
-
 void printstack(){
     while(!stemp.empty()){
         stempd.push(stemp.top());
@@ -434,7 +434,6 @@ void printstack(){
         stempd.pop();
     }
 }
-
 void printqueue(){
     cout<<'\t'<<'\t';
     while(!qtemp.empty()){
@@ -443,7 +442,6 @@ void printqueue(){
     }
     cout<<endl;
 }
-
 void printgram(){
     cout<<"转换后的文法如下:"<<endl;
     for(int i=0;i<MAX;i++){
@@ -456,7 +454,6 @@ void printgram(){
             break;
     }
 }
-
 void exe(){
     int flag = TRUE;
     int tnum,nnum;
@@ -512,7 +509,6 @@ void exe(){
         printqueue();
     }
 }
-
 void initchar(){
     char a[MAX];
     int i=0;
@@ -523,16 +519,8 @@ void initchar(){
         i++;
     }
 }
-
+//*******************************************************//
 int main() {
-    /*
-     * E->TR
-     * R->+TR|ε
-     * T->FY
-     * Y->*FY|ε
-     * F->(E)|i
-     * (i+i)*i#
-     */
     initregram();
     initchar();
     initgram();
@@ -548,3 +536,11 @@ int main() {
     exe();
     return 0;
 }
+    /* 快捷输入:
+     * E->TR
+     * R->+TR|ε
+     * T->FY
+     * Y->*FY|ε
+     * F->(E)|i
+     * (i+i)*i#
+     */
